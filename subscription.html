@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legal Wise Summarizer - Payment</title>
+    <style>
+        body {
+            font-family: 'Verdana', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background-color: #f9f9f9;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #34495e;
+            text-align: center;
+        }
+        .plan {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            width: 250px;
+            text-align: center;
+            margin: 30px auto;
+        }
+        #paypal-button {
+            width: 250px;
+            margin: 0 auto;
+        }
+        #status {
+            text-align: center;
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Legal Wise Summarizer</h1>
+        <p style="text-align: center;">Subscribe to unlock all features</p>
+        
+        <div class="plan">
+            <h2>Monthly Subscription</h2>
+            <div style="font-size: 24px; font-weight: bold;">$4.99</div>
+            <div style="color: #7f8c8d;">per month</div>
+            <div id="paypal-button"></div>
+        </div>
+        
+        <div id="status" style="display: none;"></div>
+    </div>
+    
+    <!-- PayPal JS SDK -->
+    <script src="https://www.paypal.com/sdk/js?client-id=YOUR_PAYPAL_CLIENT_ID&vault=true&intent=subscription"></script>
+    <script>
+        // Function to get URL parameters
+        function getUrlParam(param) {
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            return urlParams.get(param);
+        }
+        
+        // Get user token or generate one
+        const userToken = getUrlParam('token') || Math.random().toString(36).substring(2, 15);
+        
+        // Set up PayPal buttons
+        paypal.Buttons({
+            style: {
+                shape: 'rect',
+                color: 'blue',
+                layout: 'vertical',
+                label: 'subscribe'
+            },
+            createSubscription: function(data, actions) {
+                return actions.subscription.create({
+                    'plan_id': 'YOUR_MONTHLY_PLAN_ID'
+                });
+            },
+            onApprove: function(data, actions) {
+                const statusDiv = document.getElementById('status');
+                statusDiv.textContent = 'Processing your subscription...';
+                statusDiv.className = '';
+                statusDiv.style.display = 'block';
+                
+                // Call your webhook with subscription data
+                fetch('https://hook.eu2.make.com/ideqo5ytvpulkdajsliwos9tevkitvs9', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        subscriptionID: data.subscriptionID,
+                        userToken: userToken,
+                        plan: 'monthly',
+                        action: 'subscription_created'
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    statusDiv.textContent = 'Subscription activated! Redirecting back to extension...';
+                    statusDiv.className = 'success';
+                    
+                    // Redirect back to Chrome with activation token
+                    setTimeout(() => {
+                        window.location.href = `chrome-extension://YOUR_EXTENSION_ID/activation.html?token=${userToken}&subscription=${data.subscriptionID}`;
+                    }, 2000);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    statusDiv.textContent = 'There was an error processing your subscription. Please try again.';
+                    statusDiv.className = 'error';
+                });
+            }
+        }).render('#paypal-button');
+    </script>
+</body>
+</html>
