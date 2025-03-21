@@ -57,7 +57,7 @@
         
         <div class="plan">
             <h2>Monthly Subscription</h2>
-            <div style="font-size: 24px; font-weight: bold;">$4.99</div>
+            <div style="font-size: 24px; font-weight: bold;">$5.00</div>
             <div style="color: #7f8c8d;">per month</div>
             <div id="paypal-button"></div>
         </div>
@@ -66,7 +66,7 @@
     </div>
     
     <!-- PayPal JS SDK -->
-    <script src="https://www.paypal.com/sdk/js?client-id=YOUR_PAYPAL_CLIENT_ID&vault=true&intent=subscription"></script>
+    <script src="https://www.paypal.com/sdk/js?client-id=AdlfLMKLefbdEWcegqf9g4FRYYe68_zvkCJqusLH2gciGRc2N8kwqAl6WuMG1eZIbbDhZVrCS7Gu1l-9&vault=true&intent=subscription"></script>
     <script>
         // Function to get URL parameters
         function getUrlParam(param) {
@@ -88,7 +88,7 @@
             },
             createSubscription: function(data, actions) {
                 return actions.subscription.create({
-                    'plan_id': 'YOUR_MONTHLY_PLAN_ID'
+                    'plan_id': 'P-3YV792561K7257405M7HFLWY'
                 });
             },
             onApprove: function(data, actions) {
@@ -115,7 +115,7 @@
                     
                     // Redirect back to Chrome with activation token
                     setTimeout(() => {
-                        window.location.href = `chrome-extension://YOUR_EXTENSION_ID/activation.html?token=${userToken}&subscription=${data.subscriptionID}`;
+                        window.location.href = `chrome-extension://ojnbohmppadfgpejeebfnmnknjdlckgj/activation.html?token=${userToken}&subscription=${data.subscriptionID}`;
                     }, 2000);
                 })
                 .catch(error => {
