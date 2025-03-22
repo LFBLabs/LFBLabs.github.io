@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legal Wise Summarizer - Subscription Cancellation</title>
+    <style>
+        body {
+            font-family: 'Verdana', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background-color: #f9f9f9;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #34495e;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .button {
+            display: inline-block;
+            background-color: #3498db;
+            color: white;
+            font-weight: bold;
+            padding: 12px 24px;
+            border-radius: 5px;
+            text-decoration: none;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Legal Wise Summarizer</h1>
+        <h2>Subscription Management</h2>
+        
+        <div id="status" class="status">
+            Processing your request...
+        </div>
+        
+        <a href="#" id="return-button" class="button" style="display: none;">Return to Extension</a>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const statusDiv = document.getElementById('status');
+            const returnButton = document.getElementById('return-button');
+            
+            // Get URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const action = urlParams.get('action');
+            const subscriptionID = urlParams.get('subscription_id');
+            
+            if (action === 'cancel' && subscriptionID) {
+                // Send cancellation request to webhook
+                fetch('https://hook.eu2.make.com/pthdlslo4iyf7ny5o9zeni2td5vqn2nb', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        subscriptionID: subscriptionID,
+                        action: 'subscription_cancelled'
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    statusDiv.textContent = 'Your subscription has been successfully cancelled.';
+                    statusDiv.className = 'status success';
+                    returnButton.style.display = 'inline-block';
+                    
+                    // If we have extension ID, create a link back to it
+                    returnButton.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        window.location.href = `chrome-extension://ojnbohmppadfgpejeebfnmnknjdlckgj/activation.html?action=cancelled&subscription=${subscriptionID}`;
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    statusDiv.textContent = 'There was an error processing your cancellation request. Please try again.';
+                    statusDiv.className = 'status error';
+                });
+            } else {
+                statusDiv.textContent = 'Invalid cancellation request. Please check the URL and try again.';
+                statusDiv.className = 'status error';
+            }
+        });
+    </script>
+</body>
+</html>
